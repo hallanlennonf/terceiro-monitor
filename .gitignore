@@ -1,0 +1,17 @@
+# Saida de compilacao
+bin/
+obj/
+dist/
+
+# Visual Studio / Rider
+.vs/
+.idea/
+*.user
+
+# Logs e arquivos temporarios
+*.log
+
+# Repositorio git vazio que existia dentro de RemoteMirror/ antes desta
+# publicacao (nenhum commit, nenhum remoto). Movido para o lado em vez de
+# apagado, para ser reversivel.
+.git-vazio-sem-commits/

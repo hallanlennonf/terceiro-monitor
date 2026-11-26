@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>RemoteMirror</AssemblyName>
+    <RootNamespace>RemoteMirror.App</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
+    <Platforms>x64</Platforms>
+    <PlatformTarget>x64</PlatformTarget>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+
+    <Product>RemoteMirror</Product>
+    <AssemblyTitle>RemoteMirror</AssemblyTitle>
+    <Description>Acesso remoto local que nao bloqueia a tela da maquina acessada.</Description>
+    <Version>1.0.0</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RemoteMirror.Core\RemoteMirror.Core.csproj" />
+    <ProjectReference Include="..\RemoteMirror.Host\RemoteMirror.Host.csproj" />
+    <ProjectReference Include="..\RemoteMirror.Viewer\RemoteMirror.Viewer.csproj" />
+  </ItemGroup>
+
+</Project>

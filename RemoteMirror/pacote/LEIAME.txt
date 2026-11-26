@@ -1,0 +1,156 @@
+RemoteMirror
+============
+
+Ve a tela de outro computador da mesma rede SEM bloquear a tela dele.
+
+Diferente da Area de Trabalho Remota do Windows, aqui ninguem e deslogado:
+quem esta no outro computador continua usando normalmente, e voce ve a
+mesma tela, ao vivo.
+
+E UM ARQUIVO SO
+---------------
+
+RemoteMirror.exe serve para os dois lados.
+Copie para os dois computadores. Ao abrir, ele pergunta:
+
+    "Ser visto por outro computador"   -> instala e fica na bandeja
+    "Ver a tela de outro computador"   -> abre o viewer, nao instala nada
+    "Usar o notebook como 3o monitor"  -> so mouse e teclado atravessam
+
+Nao precisa instalar .NET nem nada.
+
+
+PASSO A PASSO
+-------------
+
+No computador que sera VISTO (ex.: o notebook):
+    1. Abra o RemoteMirror.exe
+    2. Clique em "Instalar aqui"
+    3. Aceite o aviso do Windows (e so para liberar o firewall)
+    4. Clique no icone que aparece na bandeja, perto do relogio,
+       e depois em "Senha: ..." para copiar a senha
+
+No computador que vai VER (ex.: o PC):
+    1. Abra o RemoteMirror.exe
+    2. Clique em "Abrir viewer"
+    3. O outro computador aparece na lista. Clique nele.
+    4. Cole a senha e conecte
+
+
+MODO "TERCEIRO MONITOR"
+-----------------------
+
+Serve para quando o notebook esta na sua mesa e voce OLHA a tela dele
+direto. Nesse caso nao faz sentido transmitir video: o que falta e o
+mouse e o teclado chegarem la.
+
+Com esse modo ligado, voce empurra o mouse contra a borda do seu
+monitor e o cursor entra no notebook, como se ele fosse um monitor a
+mais. Empurre de volta e o cursor volta.
+
+Como ligar, no SEU PC:
+    1. Abra o RemoteMirror.exe
+    2. Clique em "Ligar" no terceiro cartao
+    3. Escolha o notebook na lista e cole a senha dele
+    4. No icone da bandeja, "Ajustar posicao do notebook..." e arraste
+       a telinha para o lado onde o notebook esta de verdade
+
+No notebook basta o host instalado, igual ao modo de ver a tela.
+
+    Ctrl + Alt + Home    traz o cursor de volta na hora, de emergencia
+
+Se o mouse parecer mais bruto ou mais lento do lado do notebook, ajuste em
+"Sensibilidade do mouse la", no menu da bandeja. O movimento vai como vem do
+mouse, sem a curva de aceleracao que o Windows aplica ao cursor daqui, e o
+quanto isso incomoda depende do mouse de cada um.
+
+Por que a tela virtual nao aparece nas Configuracoes de Video do
+Windows: para isso o Windows exige um driver de monitor indireto
+assinado digitalmente, o que nao da para distribuir assim. Entao o
+arranjo dos monitores mora na telinha do proprio programa.
+
+O que NAO atravessa: arrastar janelas entre as maquinas. Sao dois
+Windows diferentes, cada um com suas proprias janelas. O que atravessa
+e o cursor, o teclado e (se marcado) a area de transferencia.
+
+Enquanto esse modo esta ligado o notebook nao transmite imagem
+nenhuma: zero banda e CPU parada do lado dele.
+
+
+ATALHOS DENTRO DA SESSAO
+------------------------
+
+    Ctrl + Alt + F     tela cheia (liga/desliga)
+    Ctrl + Alt + C     alterna entre controlar e so olhar
+    Ctrl + Alt + M     troca de monitor remoto
+    Ctrl + Alt + Q     sair
+
+Todo o resto do teclado vai para a maquina remota, inclusive
+Alt+Tab, Tab e as setas.
+
+
+MENU DA BANDEJA (no lado que e visto)
+-------------------------------------
+
+    Senha              clique para copiar
+    Gerar nova senha   revoga a antiga
+    Mostrar meus IPs   caso a descoberta automatica falhe
+    Monitor            escolhe qual tela e capturada
+    Qualidade          leve / equilibrada / nitida / maxima
+    Permitir controle  desmarque para deixar so visualizacao
+    Iniciar com o Windows
+    Liberar no firewall
+    Sair
+
+
+LINHA DE COMANDO
+----------------
+
+    RemoteMirror.exe                 pergunta o que fazer
+    RemoteMirror.exe --host          sobe o host direto na bandeja
+    RemoteMirror.exe --viewer        abre o viewer
+    RemoteMirror.exe --viewer IP     conecta direto (senha ja salva)
+    RemoteMirror.exe --share         liga o modo terceiro monitor
+    RemoteMirror.exe --posicao       so ajusta onde o notebook fica
+    RemoteMirror.exe --install       instala o host sem perguntar
+    RemoteMirror.exe --uninstall     remove deste computador
+
+Da para criar um atalho com "--viewer 192.168.0.42" e cair direto
+na tela do outro computador, sem passar pela lista.
+
+
+SEGURANCA
+---------
+
+- A conexao e cifrada (AES-256-GCM) e autenticada por senha.
+- A senha nunca trafega na rede: os dois lados provam que a conhecem
+  por desafio-resposta.
+- A senha fica guardada protegida pela conta do Windows (DPAPI).
+- O trafego nao sai da sua rede local: nao existe servidor no meio.
+- Se desmarcar "Permitir controle", o viewer so enxerga.
+
+
+DESINSTALAR
+-----------
+
+Abra o RemoteMirror.exe e clique em "Desinstalar", ou rode:
+
+    RemoteMirror.exe --uninstall
+
+
+LIMITACOES CONHECIDAS
+---------------------
+
+- O host roda sem elevacao. Por regra do proprio Windows (UIPI), ele nao
+  consegue mandar teclas/cliques para janelas de programas abertos como
+  administrador. Para isso, rode o host como administrador.
+
+- Tela de bloqueio e a tela do Ctrl+Alt+Del nao sao capturadas: sao areas
+  protegidas do Windows, e nenhum programa comum ve elas.
+
+- Em jogos em tela cheia exclusiva a captura pode cair; ela se recupera
+  sozinha em alguns segundos.
+
+- E espelho, nao sessao separada: quem esta na maquina ve seu cursor mexer.
+
+- Pensado para rede local. Nao exponha a porta na internet.

@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/RemoteMirror.App/RemoteMirror.App.csproj">
+      <Platform Project="x64" />
+    </Project>
+    <Project Path="src/RemoteMirror.Core/RemoteMirror.Core.csproj" />
+    <Project Path="src/RemoteMirror.Host/RemoteMirror.Host.csproj" />
+    <Project Path="src/RemoteMirror.Viewer/RemoteMirror.Viewer.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/RemoteMirror.SmokeTest/RemoteMirror.SmokeTest.csproj">
+      <Platform Project="x64" />
+    </Project>
+  </Folder>
+</Solution>
