@@ -18,6 +18,47 @@ computadores e ele pergunta qual e o papel de cada um:
 
 Detalhes, modos e diagnostico em [RemoteMirror/README.md](RemoteMirror/README.md).
 
+### Se o antivirus acusar o executavel
+
+Pode acontecer, e e previsivel. O RemoteMirror **faz as mesmas coisas que um
+trojan de acesso remoto faz**, porque e para isso que ele serve:
+
+- instala um gancho de teclado de baixo nivel (`SetWindowsHookEx`), que e a
+  tecnica de um keylogger;
+- captura a tela continuamente (Desktop Duplication API);
+- injeta cliques e teclas na outra maquina (`SendInput`);
+- abre uma porta e aceita conexao pela rede;
+- se copia para `%LOCALAPPDATA%` e se registra para subir com o Windows.
+
+Um antivirus que olha comportamento e marca isso nao esta errado nem quebrado:
+essa lista, junta, e a definicao de um RAT. A diferenca entre esta ferramenta e
+um trojan nao esta no que ela faz, e sim em **quem a instalou e quem tem a
+senha** - e isso nenhum antivirus tem como saber. Somado a um executavel
+unico, que se descompacta sozinho, sem assinatura de codigo e sem reputacao
+nenhuma, a deteccao e quase garantida em alguns produtos.
+
+O que da para fazer:
+
+1. **Confira o que voce baixou.** O `RemoteMirror.exe` da release v1.0.0 tem
+   este SHA-256:
+
+   ```
+   334b96cb9c51d3d5b1c2974226eb54daf607f003aa96c493e8718c02a331cba5
+   ```
+
+   No PowerShell: `Get-FileHash .\RemoteMirror.exe`. Se bater, o arquivo e o
+   mesmo que foi publicado aqui. Se **nao** bater, nao execute - aí e outra
+   conversa, e nao e sobre antivirus.
+
+2. **Compile do codigo-fonte.** Esta tudo neste repositorio: `dotnet build` e
+   `publicar.ps1`. E a unica forma de nao depender da confianca de ninguem.
+
+3. **Nao desligue o antivirus.** Se decidir usar mesmo assim, crie uma excecao
+   apenas para esse arquivo, e so se voce mesmo o baixou daqui.
+
+O honesto a dizer para quem voce for passar o programa: isto e uma ferramenta
+de acesso remoto, o antivirus vai reclamar, e a reclamacao faz sentido.
+
 O resto desta pagina descreve o **caminho sem instalar nada**, usando RDP
 Shadowing nativo do Windows — util quando as duas maquinas sao suas e voce
 prefere nao copiar executavel.
