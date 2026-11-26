@@ -43,7 +43,7 @@ O que da para fazer:
    este SHA-256:
 
    ```
-   334b96cb9c51d3d5b1c2974226eb54daf607f003aa96c493e8718c02a331cba5
+   759d7020684c24450d0c3f0c9b94b7e02138212a591be63800a963f583f016e2
    ```
 
    No PowerShell: `Get-FileHash .\RemoteMirror.exe`. Se bater, o arquivo e o
