@@ -28,6 +28,20 @@ public sealed class TrayApp : ApplicationContext
     private Icon? _iconIdle;
     private Icon? _iconActive;
 
+    /// <summary>
+    /// Janela escondida so para marshalling: a area de transferencia so pode
+    /// ser lida e escrita na thread STA da interface, e os eventos do servidor
+    /// chegam por threads de rede. Sem um controle para o Invoke, tocar no
+    /// clipboard dessas threads lanca excecao.
+    /// </summary>
+    private readonly Form _marshal = new()
+    {
+        FormBorderStyle = FormBorderStyle.FixedToolWindow,
+        ShowInTaskbar = false,
+        WindowState = FormWindowState.Minimized,
+        Opacity = 0,
+    };
+
     public TrayApp()
     {
         _config = HostConfig.Load();
@@ -90,6 +104,15 @@ public sealed class TrayApp : ApplicationContext
 
         _server.ClientCountChanged += OnClientCountChanged;
         _server.Status += OnStatus;
+
+        // Garante o handle da janela escondida antes de qualquer Invoke.
+        _ = _marshal.Handle;
+
+        // PC -> notebook: aplica aqui o que foi copiado no PC (ao atravessar).
+        _server.ClipboardReceived += ApplyClipboardFromPc;
+
+        // notebook -> PC: fornece o que foi copiado aqui, lido na thread certa.
+        _server.ClipboardProvider = ReadLocalClipboard;
 
         if (_config.StartWithWindows && !IsStartupEnabled())
             SetStartup(true);
@@ -228,6 +251,54 @@ public sealed class TrayApp : ApplicationContext
         }
 
         return menu;
+    }
+
+    // ---------------------------------------------------- area de transferencia
+
+    /// <summary>
+    /// Aplica neste computador o texto que foi copiado no PC. Vem de uma thread
+    /// de rede; marshalla para a thread STA da interface antes de tocar no
+    /// clipboard. Nao bloqueia a rede: dispara e segue.
+    /// </summary>
+    private void ApplyClipboardFromPc(string text)
+    {
+        if (string.IsNullOrEmpty(text)) return;
+
+        void Aplicar()
+        {
+            try { Clipboard.SetText(text); } catch { /* outro app segurando */ }
+        }
+
+        try
+        {
+            if (_marshal.IsHandleCreated && _marshal.InvokeRequired)
+                _marshal.BeginInvoke(Aplicar);
+            else
+                Aplicar();
+        }
+        catch { /* interface encerrando */ }
+    }
+
+    /// <summary>
+    /// Le o texto da area de transferencia deste computador, sempre na thread
+    /// STA. Retorna null se nao houver texto ou se algo der errado - nunca
+    /// lanca, porque quem chama e o servidor numa thread de rede.
+    /// </summary>
+    private string? ReadLocalClipboard()
+    {
+        string? Ler()
+        {
+            try { return Clipboard.ContainsText() ? Clipboard.GetText() : null; }
+            catch { return null; }
+        }
+
+        try
+        {
+            return _marshal.IsHandleCreated && _marshal.InvokeRequired
+                ? (string?)_marshal.Invoke(Ler)
+                : Ler();
+        }
+        catch { return null; }
     }
 
     // -------------------------------------------------------------- acoes
@@ -432,6 +503,7 @@ public sealed class TrayApp : ApplicationContext
         _icon.Dispose();
         _iconIdle?.Dispose();
         _iconActive?.Dispose();
+        _marshal.Dispose();
         Application.Exit();
     }
 

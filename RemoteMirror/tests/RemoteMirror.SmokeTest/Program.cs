@@ -37,7 +37,7 @@ internal static class Program
 
         if (args.Length > 0 && args[0] == "--achar")
             return await LocatorProbe.RunAsync(
-                args.Length > 1 ? args[1] : "192.168.18.230",
+                args.Length > 1 ? args[1] : "192.168.0.42",
                 args.Length > 2 ? args[2] : null);
 
         if (args.Length > 0 && args[0] == "--semvideo")

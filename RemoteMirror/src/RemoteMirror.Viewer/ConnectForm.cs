@@ -164,7 +164,10 @@ public sealed class ConnectForm : Form
 
         try
         {
-            _found = (await Discovery.ScanAsync(TimeSpan.FromSeconds(2), _scanCts.Token)).ToList();
+            // Nao so UDP: numa rede com VPN/Tailscale/Hyper-V o broadcast se
+            // perde e o quadradinho ficava vazio. DiscoverAsync tambem varre a
+            // sub-rede na porta do servico e acha quem o UDP nao alcanca.
+            _found = await HostLocator.DiscoverAsync((int)_portBox.Value, _scanCts.Token);
         }
         catch (Exception ex)
         {
@@ -183,7 +186,7 @@ public sealed class ConnectForm : Form
 
         _statusLabel.Text = _found.Count switch
         {
-            0 => "Nenhum host achado. Digite o IP abaixo.",
+            0 => "Nenhum host achado na rede. Digite o nome ou o IP abaixo.",
             1 => "1 computador encontrado.",
             _ => $"{_found.Count} computadores encontrados.",
         };

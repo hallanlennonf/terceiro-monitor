@@ -8,7 +8,7 @@
     desbloqueada e usavel - voce so ganha um espelho dela aqui.
 
 .PARAMETER Alvo
-    Nome do notebook na rede (ou IP). Ex: -Alvo NOTE-HALLAN
+    Nome do notebook na rede (ou IP). Ex: -Alvo NOME-DO-NOTEBOOK
 
 .PARAMETER SomenteVer
     Abre em modo leitura: voce ve, mas nao controla mouse/teclado.
@@ -20,7 +20,7 @@
     Forca um ID de sessao especifico (pula a deteccao automatica).
 
 .EXAMPLE
-    .\conectar.ps1 -Alvo NOTE-HALLAN
+    .\conectar.ps1 -Alvo NOME-DO-NOTEBOOK
 
 .EXAMPLE
     .\conectar.ps1 -Alvo 192.168.0.42 -SomenteVer -Janela

@@ -112,8 +112,8 @@ com controle de mouse e teclado.
 Variações:
 
 ```powershell
-.\conectar.ps1 -Alvo NOTE-HALLAN -SomenteVer     # só olhar, sem controlar
-.\conectar.ps1 -Alvo NOTE-HALLAN -Janela         # em janela, não tela cheia
+.\conectar.ps1 -Alvo NOME-DO-NOTEBOOK -SomenteVer     # só olhar, sem controlar
+.\conectar.ps1 -Alvo NOME-DO-NOTEBOOK -Janela         # em janela, não tela cheia
 .\conectar.ps1 -Alvo 192.168.0.42 -SessaoId 1    # forçando IP e sessão
 ```
 

@@ -122,6 +122,52 @@ public static class HostLocator
         ];
     }
 
+    /// <summary>
+    /// Lista os hosts visiveis agora, para a tela de conexao. Junta a
+    /// descoberta por UDP (que traz o nome da maquina) com a varredura TCP da
+    /// sub-rede (que acha quem o UDP nao alcanca).
+    ///
+    /// Existe porque o quadradinho que mostra o PC vinha so do UDP, e numa
+    /// rede com VPN/Tailscale/Hyper-V o broadcast se perde entre adaptadores:
+    /// a lista ficava vazia e so restava digitar o nome na mao. A varredura e
+    /// o mesmo caminho que a reconexao automatica ja usava; faltava aqui.
+    /// </summary>
+    public static async Task<List<DiscoveredHost>> DiscoverAsync(
+        int port, CancellationToken token = default)
+    {
+        var achados = new Dictionary<string, DiscoveredHost>(StringComparer.OrdinalIgnoreCase);
+
+        try
+        {
+            foreach (var h in await Discovery.ScanAsync(TimeSpan.FromSeconds(2), token))
+                achados[h.Address.ToString()] = h;
+        }
+        catch { /* UDP falhou: a varredura ainda pode achar */ }
+
+        foreach (var ip in await SweepLocalSubnetsAsync(port, token))
+        {
+            if (achados.ContainsKey(ip)) continue;
+
+            // Sem nome vindo do UDP, tenta o DNS reverso; se nao houver, mostra
+            // o proprio IP, que ja deixa a pessoa clicar em vez de digitar.
+            var nome = await ReverseNameAsync(ip, token) ?? ip;
+            achados[ip] = new DiscoveredHost(nome, IPAddress.Parse(ip), port);
+        }
+
+        return achados.Values.ToList();
+    }
+
+    private static async Task<string?> ReverseNameAsync(string ip, CancellationToken token)
+    {
+        try
+        {
+            var entry = await Dns.GetHostEntryAsync(ip, token);
+            var dot = entry.HostName.IndexOf('.');
+            return dot > 0 ? entry.HostName[..dot] : entry.HostName;
+        }
+        catch { return null; }
+    }
+
     private static async Task<bool> AnyLocalRespondsAsync(
         IEnumerable<string> addresses, int port, CancellationToken token)
     {

@@ -41,6 +41,17 @@ public sealed class HostServer : IDisposable
     /// </summary>
     public event Action<string>? ClipboardReceived;
 
+    /// <summary>
+    /// De onde ler o texto da area de transferencia DESTE computador, para
+    /// mandar de volta ao PC quando o cursor sai daqui.
+    ///
+    /// E a bandeja quem fornece: a API de clipboard so funciona na thread STA
+    /// dela, e esta classe roda em threads de rede. Sem isto, o Ctrl+C feito
+    /// aqui no notebook nunca chegava ao PC - so a direcao PC->notebook
+    /// trafegava, e mesmo essa caia no vazio por falta de quem aplicasse.
+    /// </summary>
+    public Func<string?>? ClipboardProvider { get; set; }
+
     /// <summary>Monitor sendo capturado agora.</summary>
     public MonitorInfo? CurrentMonitor { get; private set; }
 
@@ -262,6 +273,12 @@ public sealed class HostServer : IDisposable
                 session.SharedActive = false;
                 session.Edge?.Reset();
                 InputInjector.ReleaseAllModifiers();
+
+                // O cursor esta saindo do notebook de volta ao PC: e o momento
+                // de mandar o que foi copiado aqui, para o Ctrl+V funcionar la.
+                // Espelha a direcao oposta, que o PC faz ao entrar.
+                SendClipboardBack(session);
+
                 Status?.Invoke($"Cursor voltou para {session.Remote}.");
                 break;
 
@@ -387,6 +404,33 @@ public sealed class HostServer : IDisposable
             w.Write(text);
         }
         return ms.ToArray();
+    }
+
+    private static byte[] BuildClipboard(string text)
+    {
+        using var ms = new MemoryStream();
+        using (var w = new BinaryWriter(ms, Encoding.UTF8, leaveOpen: true))
+        {
+            w.Write((byte)ServerMessage.ClipboardText);
+            w.Write(text);
+        }
+        return ms.ToArray();
+    }
+
+    /// <summary>
+    /// Manda para o PC o texto copiado neste computador, se houver. Chamado
+    /// quando o cursor volta para o PC; ler o clipboard atravessa a thread STA
+    /// da bandeja, entao qualquer demora ou erro fica contido aqui.
+    /// </summary>
+    private void SendClipboardBack(ClientSession session)
+    {
+        string? texto;
+        try { texto = ClipboardProvider?.Invoke(); }
+        catch { return; }
+
+        if (string.IsNullOrEmpty(texto) || texto.Length >= 256 * 1024) return;
+
+        session.TryQueue(BuildClipboard(texto));
     }
 
     private static byte[] BuildFrame(
